@@ -1,7 +1,7 @@
 Spring's RowMapper implementation using annotated constructors
 ==============================================================
 
-Creates `RowMapper` for classes having their constructor arguments annotated with JSR330 @Named annotation.
+Creates `RowMapper`s for classes having their constructor arguments annotated with JSR330 @Named annotation.
 Uses constructors for objects instantiation. Supports class hierarchies using discriminator column.
 
 Library only depends on [spring-jdbc](http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html).
