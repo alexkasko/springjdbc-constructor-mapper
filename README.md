@@ -4,7 +4,7 @@ Spring's RowMapper implementation using annotated constructors
 Creates `RowMapper`s for classes having their constructor arguments annotated with JSR330 @Named annotation.
 Uses constructors for objects instantiation. Supports class hierarchies using discriminator column.
 
-Library only depends on [spring-jdbc](http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html).
+Library depends on [spring-jdbc](http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html).
 
 Library is available in [Maven cental](http://repo1.maven.org/maven2/com/alexkasko/springjdbc/).
 
@@ -80,7 +80,7 @@ and `@Named` values must be locale insensitive.
 License information
 -------------------
 
-Library is provided under the terms of [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0)
+This project is released under the [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0)
 
 Changelog
 ---------
