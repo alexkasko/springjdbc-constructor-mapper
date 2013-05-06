@@ -3,98 +3,108 @@
 <PRE>
 <FONT color="green">001</FONT>    package com.alexkasko.springjdbc.named;<a name="line.1"></a>
 <FONT color="green">002</FONT>    <a name="line.2"></a>
-<FONT color="green">003</FONT>    import org.springframework.jdbc.core.ColumnMapRowMapper;<a name="line.3"></a>
-<FONT color="green">004</FONT>    import org.springframework.jdbc.core.RowMapper;<a name="line.4"></a>
-<FONT color="green">005</FONT>    <a name="line.5"></a>
-<FONT color="green">006</FONT>    import java.util.HashMap;<a name="line.6"></a>
-<FONT color="green">007</FONT>    import java.util.Map;<a name="line.7"></a>
-<FONT color="green">008</FONT>    <a name="line.8"></a>
-<FONT color="green">009</FONT>    /**<a name="line.9"></a>
-<FONT color="green">010</FONT>     * Spring's &lt;a href="http://static.springsource.org/spring/docs/3.0.x/javadoc-api/org/springframework/jdbc/core/RowMapper.html"&gt;RowMapper&lt;/a&gt;<a name="line.10"></a>
-<FONT color="green">011</FONT>     * implementation using {@link NamedConstructorList}. Designed to use with immutable classes (with final fields) -<a name="line.11"></a>
-<FONT color="green">012</FONT>     * only constructor invocation is used without any field access.<a name="line.12"></a>
-<FONT color="green">013</FONT>     * Constructor arguments must be annotated with JSR330 {@link javax.inject.Named} annotations<a name="line.13"></a>
-<FONT color="green">014</FONT>     * (there are other ways to access constructor names in runtime,see<a name="line.14"></a>
-<FONT color="green">015</FONT>     * &lt;a href="http://paranamer.codehaus.org/"&gt;paranamer project&lt;/a&gt;, but we use {@code @Named} annotations only).<a name="line.15"></a>
-<FONT color="green">016</FONT>     * Constructors without {@code @Named} annotations on arguments will be ignored.<a name="line.16"></a>
-<FONT color="green">017</FONT>     * Constructors with {@code @Named} annotations must have all they arguments annotated with not blank values without duplicates.<a name="line.17"></a>
-<FONT color="green">018</FONT>     * All reflection introspection is done on mapper instantiation. {@code @Named} values used in case-insensitive mode<a name="line.18"></a>
-<FONT color="green">019</FONT>     * (databases usually use column names so) so all {@code @Named} values and all result set column names must be locale insensitive.<a name="line.19"></a>
-<FONT color="green">020</FONT>     * Supports class hierarchies - different subclasses instantiation from single result set based on, use {@link #builder(String)}<a name="line.20"></a>
-<FONT color="green">021</FONT>     * method to create subclasses mapper and see {@link NamedConstructorSubclassesMapper} for details.<a name="line.21"></a>
-<FONT color="green">022</FONT>     *<a name="line.22"></a>
-<FONT color="green">023</FONT>     * @param &lt;T&gt; object type to map data row to<a name="line.23"></a>
-<FONT color="green">024</FONT>     * @author alexkasko<a name="line.24"></a>
-<FONT color="green">025</FONT>     * Date: 7/6/12<a name="line.25"></a>
-<FONT color="green">026</FONT>     * @see NamedConstructor<a name="line.26"></a>
-<FONT color="green">027</FONT>     * @see NamedConstructorList<a name="line.27"></a>
-<FONT color="green">028</FONT>     * @see NamedConstructorSingleMapper<a name="line.28"></a>
-<FONT color="green">029</FONT>     * @see NamedConstructorSubclassesMapper<a name="line.29"></a>
-<FONT color="green">030</FONT>     */<a name="line.30"></a>
-<FONT color="green">031</FONT>    public abstract class NamedConstructorMapper&lt;T&gt; implements RowMapper&lt;T&gt; {<a name="line.31"></a>
-<FONT color="green">032</FONT>        /**<a name="line.32"></a>
-<FONT color="green">033</FONT>         * Factory method for single class named constructor mapper<a name="line.33"></a>
-<FONT color="green">034</FONT>         *<a name="line.34"></a>
-<FONT color="green">035</FONT>         * @param clazz class type to instantiate from row data<a name="line.35"></a>
-<FONT color="green">036</FONT>         * @param &lt;T&gt; class type parameter<a name="line.36"></a>
-<FONT color="green">037</FONT>         * @return named constructor instance<a name="line.37"></a>
-<FONT color="green">038</FONT>         */<a name="line.38"></a>
-<FONT color="green">039</FONT>        public static &lt;T&gt; NamedConstructorMapper&lt;T&gt; forClass(Class&lt;T&gt; clazz) {<a name="line.39"></a>
-<FONT color="green">040</FONT>            NamedConstructorList&lt;T&gt; fun = NamedConstructorList.forClass(clazz);<a name="line.40"></a>
-<FONT color="green">041</FONT>            return new NamedConstructorSingleMapper&lt;T&gt;(fun);<a name="line.41"></a>
-<FONT color="green">042</FONT>        }<a name="line.42"></a>
-<FONT color="green">043</FONT>    <a name="line.43"></a>
-<FONT color="green">044</FONT>        /**<a name="line.44"></a>
-<FONT color="green">045</FONT>         * Builder to create subclasses mapper<a name="line.45"></a>
-<FONT color="green">046</FONT>         *<a name="line.46"></a>
-<FONT color="green">047</FONT>         * @param discColumn discriminator<a name="line.47"></a>
-<FONT color="green">048</FONT>         * @param &lt;T&gt; parent class (or interface) type<a name="line.48"></a>
-<FONT color="green">049</FONT>         * @return builder instance<a name="line.49"></a>
-<FONT color="green">050</FONT>         */<a name="line.50"></a>
-<FONT color="green">051</FONT>        public static &lt;T&gt; Builder&lt;T&gt; builder(String discColumn) {<a name="line.51"></a>
-<FONT color="green">052</FONT>            return new Builder&lt;T&gt;(discColumn);<a name="line.52"></a>
-<FONT color="green">053</FONT>        }<a name="line.53"></a>
-<FONT color="green">054</FONT>    <a name="line.54"></a>
-<FONT color="green">055</FONT>        /**<a name="line.55"></a>
-<FONT color="green">056</FONT>         * Builder class to create subclasses named constructor mapper<a name="line.56"></a>
-<FONT color="green">057</FONT>         *<a name="line.57"></a>
-<FONT color="green">058</FONT>         * @param &lt;T&gt;<a name="line.58"></a>
-<FONT color="green">059</FONT>         */<a name="line.59"></a>
-<FONT color="green">060</FONT>        public static class Builder&lt;T&gt; {<a name="line.60"></a>
-<FONT color="green">061</FONT>            private final String discColumn;<a name="line.61"></a>
-<FONT color="green">062</FONT>            private final HashMap&lt;String, NamedConstructorList&lt;? extends T&gt;&gt; map = new HashMap&lt;String, NamedConstructorList&lt;? extends T&gt;&gt;();<a name="line.62"></a>
-<FONT color="green">063</FONT>    <a name="line.63"></a>
-<FONT color="green">064</FONT>            /**<a name="line.64"></a>
-<FONT color="green">065</FONT>             * Constructor<a name="line.65"></a>
-<FONT color="green">066</FONT>             *<a name="line.66"></a>
-<FONT color="green">067</FONT>             * @param discColumn discriminator column<a name="line.67"></a>
-<FONT color="green">068</FONT>             */<a name="line.68"></a>
-<FONT color="green">069</FONT>            public Builder(String discColumn) {<a name="line.69"></a>
-<FONT color="green">070</FONT>                this.discColumn = discColumn;<a name="line.70"></a>
-<FONT color="green">071</FONT>            }<a name="line.71"></a>
-<FONT color="green">072</FONT>    <a name="line.72"></a>
-<FONT color="green">073</FONT>            /**<a name="line.73"></a>
-<FONT color="green">074</FONT>             * Registers subclass in mapper<a name="line.74"></a>
-<FONT color="green">075</FONT>             *<a name="line.75"></a>
-<FONT color="green">076</FONT>             * @param discriminator discriminator column value<a name="line.76"></a>
-<FONT color="green">077</FONT>             * @param subclass subclass type<a name="line.77"></a>
-<FONT color="green">078</FONT>             * @return builder itself<a name="line.78"></a>
-<FONT color="green">079</FONT>             */<a name="line.79"></a>
-<FONT color="green">080</FONT>            public Builder&lt;T&gt; addSubclass(String discriminator, Class&lt;? extends T&gt; subclass) {<a name="line.80"></a>
-<FONT color="green">081</FONT>                map.put(discriminator, NamedConstructorList.forClass(subclass));<a name="line.81"></a>
-<FONT color="green">082</FONT>                return this;<a name="line.82"></a>
-<FONT color="green">083</FONT>            }<a name="line.83"></a>
-<FONT color="green">084</FONT>    <a name="line.84"></a>
-<FONT color="green">085</FONT>            /**<a name="line.85"></a>
-<FONT color="green">086</FONT>             * Builds mapper<a name="line.86"></a>
-<FONT color="green">087</FONT>             *<a name="line.87"></a>
-<FONT color="green">088</FONT>             * @return named mapper instance<a name="line.88"></a>
+<FONT color="green">003</FONT>    import org.springframework.jdbc.core.RowMapper;<a name="line.3"></a>
+<FONT color="green">004</FONT>    <a name="line.4"></a>
+<FONT color="green">005</FONT>    import java.util.HashMap;<a name="line.5"></a>
+<FONT color="green">006</FONT>    <a name="line.6"></a>
+<FONT color="green">007</FONT>    /**<a name="line.7"></a>
+<FONT color="green">008</FONT>     * Spring's &lt;a href="http://static.springsource.org/spring/docs/3.0.x/javadoc-api/org/springframework/jdbc/core/RowMapper.html"&gt;RowMapper&lt;/a&gt;<a name="line.8"></a>
+<FONT color="green">009</FONT>     * implementation using {@link NamedConstructorList}. Designed to use with immutable classes (with final fields) -<a name="line.9"></a>
+<FONT color="green">010</FONT>     * only constructor invocation is used without any field access.<a name="line.10"></a>
+<FONT color="green">011</FONT>     * Constructor arguments must be annotated with JSR330 {@link javax.inject.Named} annotations<a name="line.11"></a>
+<FONT color="green">012</FONT>     * (there are other ways to access constructor names in runtime,see<a name="line.12"></a>
+<FONT color="green">013</FONT>     * &lt;a href="http://paranamer.codehaus.org/"&gt;paranamer project&lt;/a&gt;, but we use {@code @Named} annotations only).<a name="line.13"></a>
+<FONT color="green">014</FONT>     * Constructors without {@code @Named} annotations on arguments will be ignored.<a name="line.14"></a>
+<FONT color="green">015</FONT>     * Constructors with {@code @Named} annotations must have all they arguments annotated with not blank values without duplicates.<a name="line.15"></a>
+<FONT color="green">016</FONT>     * All reflection introspection is done on mapper instantiation. {@code @Named} values used in case-insensitive mode<a name="line.16"></a>
+<FONT color="green">017</FONT>     * (databases usually use column names so) so all {@code @Named} values and all result set column names must be locale insensitive.<a name="line.17"></a>
+<FONT color="green">018</FONT>     * Supports class hierarchies - different subclasses instantiation from single result set based on, use {@link #builder(String)}<a name="line.18"></a>
+<FONT color="green">019</FONT>     * method to create subclasses mapper and see {@link NamedConstructorSubclassesMapper} for details.<a name="line.19"></a>
+<FONT color="green">020</FONT>     *<a name="line.20"></a>
+<FONT color="green">021</FONT>     * @param &lt;T&gt; object type to map data row to<a name="line.21"></a>
+<FONT color="green">022</FONT>     * @author alexkasko<a name="line.22"></a>
+<FONT color="green">023</FONT>     * Date: 7/6/12<a name="line.23"></a>
+<FONT color="green">024</FONT>     * @see NamedConstructor<a name="line.24"></a>
+<FONT color="green">025</FONT>     * @see NamedConstructorList<a name="line.25"></a>
+<FONT color="green">026</FONT>     * @see NamedConstructorSingleMapper<a name="line.26"></a>
+<FONT color="green">027</FONT>     * @see NamedConstructorSubclassesMapper<a name="line.27"></a>
+<FONT color="green">028</FONT>     */<a name="line.28"></a>
+<FONT color="green">029</FONT>    public abstract class NamedConstructorMapper&lt;T&gt; implements RowMapper&lt;T&gt; {<a name="line.29"></a>
+<FONT color="green">030</FONT>    <a name="line.30"></a>
+<FONT color="green">031</FONT>        /**<a name="line.31"></a>
+<FONT color="green">032</FONT>         * Static-import-friendly alias for {@link #forClass(Class)}method<a name="line.32"></a>
+<FONT color="green">033</FONT>         *<a name="line.33"></a>
+<FONT color="green">034</FONT>         * @param clazz class type to instantiate from row data<a name="line.34"></a>
+<FONT color="green">035</FONT>         * @param &lt;T&gt; class type parameter<a name="line.35"></a>
+<FONT color="green">036</FONT>         * @return named constructor instance<a name="line.36"></a>
+<FONT color="green">037</FONT>         */<a name="line.37"></a>
+<FONT color="green">038</FONT>        public static &lt;T&gt; NamedConstructorMapper&lt;T&gt; namedConstructorMapper(Class&lt;T&gt; clazz) {<a name="line.38"></a>
+<FONT color="green">039</FONT>            return NamedConstructorMapper.forClass(clazz);<a name="line.39"></a>
+<FONT color="green">040</FONT>        }<a name="line.40"></a>
+<FONT color="green">041</FONT>    <a name="line.41"></a>
+<FONT color="green">042</FONT>        /**<a name="line.42"></a>
+<FONT color="green">043</FONT>         * Factory method for single class named constructor mapper<a name="line.43"></a>
+<FONT color="green">044</FONT>         *<a name="line.44"></a>
+<FONT color="green">045</FONT>         * @param clazz class type to instantiate from row data<a name="line.45"></a>
+<FONT color="green">046</FONT>         * @param &lt;T&gt; class type parameter<a name="line.46"></a>
+<FONT color="green">047</FONT>         * @return named constructor instance<a name="line.47"></a>
+<FONT color="green">048</FONT>         */<a name="line.48"></a>
+<FONT color="green">049</FONT>        public static &lt;T&gt; NamedConstructorMapper&lt;T&gt; forClass(Class&lt;T&gt; clazz) {<a name="line.49"></a>
+<FONT color="green">050</FONT>            NamedConstructorList&lt;T&gt; fun = NamedConstructorList.forClass(clazz);<a name="line.50"></a>
+<FONT color="green">051</FONT>            return new NamedConstructorSingleMapper&lt;T&gt;(fun);<a name="line.51"></a>
+<FONT color="green">052</FONT>        }<a name="line.52"></a>
+<FONT color="green">053</FONT>    <a name="line.53"></a>
+<FONT color="green">054</FONT>        /**<a name="line.54"></a>
+<FONT color="green">055</FONT>         * Builder to create subclasses mapper<a name="line.55"></a>
+<FONT color="green">056</FONT>         *<a name="line.56"></a>
+<FONT color="green">057</FONT>         * @param discColumn discriminator<a name="line.57"></a>
+<FONT color="green">058</FONT>         * @param &lt;T&gt; parent class (or interface) type<a name="line.58"></a>
+<FONT color="green">059</FONT>         * @return builder instance<a name="line.59"></a>
+<FONT color="green">060</FONT>         */<a name="line.60"></a>
+<FONT color="green">061</FONT>        public static &lt;T&gt; Builder&lt;T&gt; builder(String discColumn) {<a name="line.61"></a>
+<FONT color="green">062</FONT>            return new Builder&lt;T&gt;(discColumn);<a name="line.62"></a>
+<FONT color="green">063</FONT>        }<a name="line.63"></a>
+<FONT color="green">064</FONT>    <a name="line.64"></a>
+<FONT color="green">065</FONT>        /**<a name="line.65"></a>
+<FONT color="green">066</FONT>         * Builder class to create subclasses named constructor mapper<a name="line.66"></a>
+<FONT color="green">067</FONT>         *<a name="line.67"></a>
+<FONT color="green">068</FONT>         * @param &lt;T&gt;<a name="line.68"></a>
+<FONT color="green">069</FONT>         */<a name="line.69"></a>
+<FONT color="green">070</FONT>        public static class Builder&lt;T&gt; {<a name="line.70"></a>
+<FONT color="green">071</FONT>            private final String discColumn;<a name="line.71"></a>
+<FONT color="green">072</FONT>            private final HashMap&lt;String, NamedConstructorList&lt;? extends T&gt;&gt; map = new HashMap&lt;String, NamedConstructorList&lt;? extends T&gt;&gt;();<a name="line.72"></a>
+<FONT color="green">073</FONT>    <a name="line.73"></a>
+<FONT color="green">074</FONT>            /**<a name="line.74"></a>
+<FONT color="green">075</FONT>             * Constructor<a name="line.75"></a>
+<FONT color="green">076</FONT>             *<a name="line.76"></a>
+<FONT color="green">077</FONT>             * @param discColumn discriminator column<a name="line.77"></a>
+<FONT color="green">078</FONT>             */<a name="line.78"></a>
+<FONT color="green">079</FONT>            public Builder(String discColumn) {<a name="line.79"></a>
+<FONT color="green">080</FONT>                this.discColumn = discColumn;<a name="line.80"></a>
+<FONT color="green">081</FONT>            }<a name="line.81"></a>
+<FONT color="green">082</FONT>    <a name="line.82"></a>
+<FONT color="green">083</FONT>            /**<a name="line.83"></a>
+<FONT color="green">084</FONT>             * Registers subclass in mapper<a name="line.84"></a>
+<FONT color="green">085</FONT>             *<a name="line.85"></a>
+<FONT color="green">086</FONT>             * @param discriminator discriminator column value<a name="line.86"></a>
+<FONT color="green">087</FONT>             * @param subclass subclass type<a name="line.87"></a>
+<FONT color="green">088</FONT>             * @return builder itself<a name="line.88"></a>
 <FONT color="green">089</FONT>             */<a name="line.89"></a>
-<FONT color="green">090</FONT>            public NamedConstructorMapper&lt;T&gt; build() {<a name="line.90"></a>
-<FONT color="green">091</FONT>                return new NamedConstructorSubclassesMapper&lt;T&gt;(map, discColumn);<a name="line.91"></a>
-<FONT color="green">092</FONT>            }<a name="line.92"></a>
-<FONT color="green">093</FONT>        }<a name="line.93"></a>
-<FONT color="green">094</FONT>    }<a name="line.94"></a>
+<FONT color="green">090</FONT>            public Builder&lt;T&gt; addSubclass(String discriminator, Class&lt;? extends T&gt; subclass) {<a name="line.90"></a>
+<FONT color="green">091</FONT>                map.put(discriminator, NamedConstructorList.forClass(subclass));<a name="line.91"></a>
+<FONT color="green">092</FONT>                return this;<a name="line.92"></a>
+<FONT color="green">093</FONT>            }<a name="line.93"></a>
+<FONT color="green">094</FONT>    <a name="line.94"></a>
+<FONT color="green">095</FONT>            /**<a name="line.95"></a>
+<FONT color="green">096</FONT>             * Builds mapper<a name="line.96"></a>
+<FONT color="green">097</FONT>             *<a name="line.97"></a>
+<FONT color="green">098</FONT>             * @return named mapper instance<a name="line.98"></a>
+<FONT color="green">099</FONT>             */<a name="line.99"></a>
+<FONT color="green">100</FONT>            public NamedConstructorMapper&lt;T&gt; build() {<a name="line.100"></a>
+<FONT color="green">101</FONT>                return new NamedConstructorSubclassesMapper&lt;T&gt;(map, discColumn);<a name="line.101"></a>
+<FONT color="green">102</FONT>            }<a name="line.102"></a>
+<FONT color="green">103</FONT>        }<a name="line.103"></a>
+<FONT color="green">104</FONT>    }<a name="line.104"></a>
 
 
 
