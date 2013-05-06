@@ -1,10 +1,8 @@
 package com.alexkasko.springjdbc.named;
 
-import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Spring's <a href="http://static.springsource.org/spring/docs/3.0.x/javadoc-api/org/springframework/jdbc/core/RowMapper.html">RowMapper</a>
@@ -29,6 +27,18 @@ import java.util.Map;
  * @see NamedConstructorSubclassesMapper
  */
 public abstract class NamedConstructorMapper<T> implements RowMapper<T> {
+
+    /**
+     * Static-import-friendly alias for {@link #forClass(Class)}method
+     *
+     * @param clazz class type to instantiate from row data
+     * @param <T> class type parameter
+     * @return named constructor instance
+     */
+    public static <T> NamedConstructorMapper<T> namedConstructorMapper(Class<T> clazz) {
+        return NamedConstructorMapper.forClass(clazz);
+    }
+
     /**
      * Factory method for single class named constructor mapper
      *
