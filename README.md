@@ -30,7 +30,7 @@ Single class example:
         private final int bar;
 
         private MyClass(@Named("foo") String foo, @Named("bar") Integer bar) {
-            this.id = id;
+            this.foo = foo;
             this.bar = null != bar ? bar : -1;
         }
     }
